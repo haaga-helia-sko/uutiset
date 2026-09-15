@@ -112,8 +112,9 @@
   <footer class="shell">Uutiset haetaan automaattisesti Ylen uutislähteistä. Päivitetty viimeksi sivun latauksen yhteydessä.</footer>
 
   <script>
-    const pageSize = 5;
-    const cacheKey = 'sko-amk-news-cache';
+    const pageSize = 10;
+    const cacheKey = 'sko-amk-news-cache-v2';
+    const teletextPages = [100, 102, 130, 160, 500];
     const cacheLifetime = 5 * 60 * 1000;
     const yleAppId = '471c17b64dab294938195a3620b13fbb';
     const yleAppKey = 'a73e08f3';
@@ -154,7 +155,7 @@
           date: page.time,
           url: `https://yle.fi/tekstitv/txt/P${match[1]}`
         };
-      }).filter(Boolean).slice(0, pageSize);
+      }).filter(item => item && /ammattikorkeakoulu|ammattikorkea|\bamk\b/i.test(item.title));
     }
 
     function renderPage() {
@@ -209,12 +210,16 @@
           return;
         }
         const params = new URLSearchParams({ app_id: yleAppId, app_key: yleAppKey });
-        const response = await fetchWithRetry(`https://external.api.yle.fi/v1/teletext/pages/100.json?${params}`);
-        if (!response.ok) throw new Error(`Ylen Teletext-rajapinta vastasi koodilla ${response.status}.`);
-        allNews = normalizeTeletext(await response.json());
+        allNews = [];
+        for (const pageNumber of teletextPages) {
+          const response = await fetchWithRetry(`https://external.api.yle.fi/v1/teletext/pages/${pageNumber}.json?${params}`);
+          if (!response.ok) throw new Error(`Ylen Teletext-rajapinta vastasi koodilla ${response.status}.`);
+          allNews.push(...normalizeTeletext(await response.json()));
+        }
+        allNews = [...new Map(allNews.map(item => [item.title, item])).values()].slice(0, pageSize);
         writeCache(allNews);
         currentPage = 0;
-        elements.status.textContent = `${allNews.length} uusinta Ylen uutisotsikkoa Teksti-TV:stä.`;
+        elements.status.textContent = `${allNews.length} uusinta AMK-aiheista Ylen uutisotsikkoa.`;
         renderPage();
       } catch (error) {
         allNews = [];
