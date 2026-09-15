@@ -5,7 +5,7 @@ Ensimmäisenä sisältönä on linkki AMK:n voimassa olevaan työehtosopimukseen
 
 ## Käyttöönotto
 
-Sivu hakee enintään viisi uutista automaattisesti `fetch`-kutsulla Ylen REST-rajapinnasta ja avaa jokaisen jutun Ylen sivulle. Onnistunut haku säilytetään selaimen istunnon välimuistissa viiden minuutin ajan API-kuorman rajoittamiseksi. Julkaise muutokset komennolla:
+Sivu hakee enintään viisi uutisotsikkoa automaattisesti `fetch`-kutsulla Ylen avoimesta Teletext REST -rajapinnasta ja avaa jokaisen otsikon Ylen Teksti-TV:ssä. Onnistunut haku säilytetään selaimen istunnon välimuistissa viiden minuutin ajan API-kuorman rajoittamiseksi. Ylen julkisessa API:ssa ei tällä hetkellä ole artikkeli- tai AMK-hakua. Julkaise muutokset komennolla:
 
 ```sh
 ./deploy.sh

@@ -142,23 +142,19 @@
       return 'https://yle.fi/haku?q=' + encodeURIComponent(item.title || '');
     }
 
-    function normalizeNews(data) {
-      const items = data.data || data.items || data.results || [];
-      return items.map(item => ({
-        title: item.title || item.headline || 'Nimetön uutinen',
-        description: item.description || item.lead || item.abstract || '',
-        date: item.publicationEvent?.startTime || item.publicationDate || item.date || item.created || '',
-        url: getNewsUrl(item)
-      })).filter(item => item.title);
-    }
-
-    function normalizeRss(xml) {
-      return [...xml.querySelectorAll('item')].filter(item => item.querySelector('source')?.getAttribute('url')?.includes('yle.fi')).map(item => ({
-        title: item.querySelector('title')?.textContent || 'Nimetön uutinen',
-        description: item.querySelector('description')?.textContent || '',
-        date: item.querySelector('pubDate')?.textContent || '',
-        url: item.querySelector('link')?.textContent || 'https://yle.fi'
-      }));
+    function normalizeTeletext(data) {
+      const page = data.teletext?.page;
+      const lines = page?.subpage?.[0]?.content?.find(block => block.type === 'text')?.line || [];
+      return lines.map(line => {
+        const match = line.Text?.match(/^\s*(\d{3})\s+(.+?)\s*$/);
+        if (!match) return null;
+        return {
+          title: match[2],
+          description: 'Ylen Teksti-TV:n uutisotsikko',
+          date: page.time,
+          url: `https://yle.fi/tekstitv/txt/P${match[1]}`
+        };
+      }).filter(Boolean).slice(0, pageSize);
     }
 
     function renderPage() {
@@ -212,13 +208,13 @@
           renderPage();
           return;
         }
-        const params = new URLSearchParams({ app_id: yleAppId, app_key: yleAppKey, q: 'ammattikorkeakoulu', limit: String(pageSize), sort: 'publicationdate', type: 'article', language: 'fi' });
-        const response = await fetchWithRetry(`https://external.api.yle.fi/v1/search.json?${params}`);
-        if (!response.ok) throw new Error(`Ylen rajapinta vastasi koodilla ${response.status}.`);
-        allNews = normalizeNews(await response.json()).slice(0, pageSize);
+        const params = new URLSearchParams({ app_id: yleAppId, app_key: yleAppKey });
+        const response = await fetchWithRetry(`https://external.api.yle.fi/v1/teletext/pages/100.json?${params}`);
+        if (!response.ok) throw new Error(`Ylen Teletext-rajapinta vastasi koodilla ${response.status}.`);
+        allNews = normalizeTeletext(await response.json());
         writeCache(allNews);
         currentPage = 0;
-        elements.status.textContent = `${allNews.length} tuoretta AMK-uutista.`;
+        elements.status.textContent = `${allNews.length} uusinta Ylen uutisotsikkoa Teksti-TV:stä.`;
         renderPage();
       } catch (error) {
         allNews = [];
