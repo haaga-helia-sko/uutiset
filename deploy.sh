@@ -9,6 +9,7 @@ set -euo pipefail
 
 GH_ORG="haaga-helia-sko"
 GH_REPO="uutiset"
+ROOT_REPO="haaga-helia-sko.github.io"
 GH_USER="jusju"
 BRANCH="gh-pages"
 SRC_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -96,16 +97,53 @@ git -C "$WORK" add -A
 
 if git -C "$WORK" diff --cached --quiet; then
     echo "Ei muutoksia, ei julkaista mitaan."
-    exit 0
+else
+    git -C "$WORK" commit --quiet -m "Deploy from kapsi $(date '+%Y-%m-%d %H:%M:%S')"
+    git -C "$WORK" push --quiet origin "HEAD:refs/heads/${BRANCH}"
+    echo "Julkaistu."
 fi
-
-git -C "$WORK" commit --quiet -m "Deploy from kapsi $(date '+%Y-%m-%d %H:%M:%S')"
-git -C "$WORK" push --quiet origin "HEAD:refs/heads/${BRANCH}"
-
-echo "Julkaistu."
 if [ -n "$CUSTOM_DOMAIN" ]; then
     echo "Osoite: https://${CUSTOM_DOMAIN}/"
 else
     echo "Osoite: https://${GH_ORG}.github.io/${GH_REPO}/"
+fi
+
+# Jos organisaation Pages-juurirepo on olemassa, julkaise sinne redirect.
+# GitHub Pages ei voi ohjata organisaation juurta projektireposta käsin.
+ROOT_REMOTE=""
+for a in "$HOST_ALIAS" "${HOST_ALIAS}-443"; do
+    if git ls-remote "git@${a}:${GH_ORG}/${ROOT_REPO}.git" >/dev/null 2>&1; then
+        ROOT_REMOTE="git@${a}:${GH_ORG}/${ROOT_REPO}.git"
+        break
+    fi
+done
+
+if [ -n "$ROOT_REMOTE" ]; then
+    ROOT_WORK="$(mktemp -d "${TMPDIR:-/tmp}/ghpages-root.XXXXXX")"
+    trap 'rm -rf "$WORK" "$ROOT_WORK"' EXIT
+    if git ls-remote --exit-code --heads "$ROOT_REMOTE" main >/dev/null 2>&1; then
+        git clone --quiet --depth 1 --branch main "$ROOT_REMOTE" "$ROOT_WORK"
+    else
+        git init --quiet "$ROOT_WORK"
+        git -C "$ROOT_WORK" checkout --quiet -b main
+        git -C "$ROOT_WORK" remote add origin "$ROOT_REMOTE"
+    fi
+    git -C "$ROOT_WORK" config user.name "$GH_USER"
+    git -C "$ROOT_WORK" config user.email "${GH_USER}@users.noreply.github.com"
+    find "$ROOT_WORK" -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
+    cat > "$ROOT_WORK/index.html" <<EOF
+<!doctype html>
+<html lang="fi"><head><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=https://${GH_ORG}.github.io/${GH_REPO}/"><title>SKO ry</title></head>
+<body><p>Siirrytään SKO ry:n uutisiin...</p><script>location.replace('https://${GH_ORG}.github.io/${GH_REPO}/');</script></body></html>
+EOF
+    git -C "$ROOT_WORK" add -A
+    if ! git -C "$ROOT_WORK" diff --cached --quiet; then
+        git -C "$ROOT_WORK" commit --quiet -m "Redirect root to uutiset"
+        git -C "$ROOT_WORK" push --quiet origin main
+    fi
+    echo "Juuriosoite ohjaa nyt: https://${GH_ORG}.github.io/"
+else
+    echo "HUOMIO: ${ROOT_REPO}-repoa ei ole tai siihen ei ole oikeutta; juuriosoitetta ei voitu julkaista." >&2
+    echo "Luo GitHubiin repo ${GH_ORG}/${ROOT_REPO}, niin deploy.sh julkaisee redirectin sinne." >&2
 fi
 
