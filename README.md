@@ -5,7 +5,7 @@ Ensimmäisenä sisältönä on linkki AMK:n voimassa olevaan työehtosopimukseen
 
 ## Käyttöönotto
 
-Sivu hakee enintään 10 AMK-aiheista uutisriviä automaattisesti `fetch`-kutsuilla Ylen avoimesta Teletext REST -rajapinnasta ja avaa jokaisen rivin Ylen Teksti-TV:ssä. Suodatus tunnistaa AMK-koulujen nimien lisäksi sanat `Sivista` ja `OAJ` kaikista Teletextin tekstilohkoista. Onnistunut haku säilytetään selaimen istunnon välimuistissa viiden minuutin ajan API-kuorman rajoittamiseksi. Ylen julkisessa API:ssa ei tällä hetkellä ole artikkeli- tai AMK-hakua. Julkaise muutokset komennolla:
+Deploy hakee Ylen Ammattikorkeakoulut-aihesivulta 10 uusinta artikkelia palvelinpuolella ja kirjoittaa ne paikalliseen `news.json`-tiedostoon. Etusivu hakee saman originin JSON-tiedoston, joten selain ei törmää Ylen sivun CORS-rajoitukseen. Uutislinkit avautuvat suoraan Ylen artikkeleihin. Julkaise ja päivitä uutiset komennolla:
 
 ```sh
 ./deploy.sh

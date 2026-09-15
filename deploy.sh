@@ -40,6 +40,17 @@ if [ -z "$(ls -A "$SRC_DIR")" ]; then
     echo "VIRHE: $SRC_DIR on tyhja, ei julkaista mitaan." >&2
     exit 1
 fi
+
+# Haetaan Ylen ammattikorkeakoulu-aiheen artikkelit palvelinpuolella.
+if command -v python3 >/dev/null 2>&1 && command -v curl >/dev/null 2>&1; then
+    if curl -fsSL --max-time 30 'https://yle.fi/t/18-209712/fi' | python3 "$SRC_DIR/update-news.py" > "$SRC_DIR/news.json.tmp"; then
+        mv "$SRC_DIR/news.json.tmp" "$SRC_DIR/news.json"
+        echo "Ylen AMK-uutisdata päivitetty."
+    else
+        rm -f "$SRC_DIR/news.json.tmp"
+        echo "VAROITUS: Ylen uutisdataa ei voitu päivittää, käytetään aiempaa news.json-tiedostoa." >&2
+    fi
+fi
 if [ ! -f "$SRC_DIR/index.html" ] && [ ! -f "$SRC_DIR/index.md" ] && [ ! -f "$SRC_DIR/README.md" ]; then
     echo "VAROITUS: $SRC_DIR:ssa ei ole index.md, index.html eika README.md." >&2
     echo "          Sivuston juuri antaa 404." >&2

@@ -113,21 +113,8 @@
 
   <script>
     const pageSize = 10;
-    const cacheKey = 'sko-amk-news-cache-v4';
-    const teletextPages = [100, 102, 130, 160, 500];
-     const schoolNames = [
-       'Arcada', 'Centria', 'Diakonia-ammattikorkeakoulu', 'Diak', 'Haaga-Helia',
-       'HAMK', 'Humanistinen ammattikorkeakoulu', 'Humak', 'Jyväskylän ammattikorkeakoulu',
-       'JAMK', 'Kajaani ammattikorkeakoulu', 'KAMK', 'Karelia-ammattikorkeakoulu',
-       'LAB-ammattikorkeakoulu', 'Lapin ammattikorkeakoulu', 'Laurea', 'Metropolia',
-       'Novia', 'Oulun ammattikorkeakoulu', 'Oamk', 'Satakunnan ammattikorkeakoulu',
-       'SAMK', 'Savonia-ammattikorkeakoulu', 'Seinäjoen ammattikorkeakoulu', 'SeAMK',
-       'Turun ammattikorkeakoulu', 'Vasa yrkeshögskola', 'VAMK', 'Kaakkois-Suomen ammattikorkeakoulu',
-      'Xamk', 'Yrkeshögskolan på Åland', 'Sivista', 'OAJ', 'ammattikorkeakoulu', 'ammattikorkea', 'AMK'
-     ];
+    const cacheKey = 'sko-amk-news-cache-v5';
     const cacheLifetime = 5 * 60 * 1000;
-    const yleAppId = '471c17b64dab294938195a3620b13fbb';
-    const yleAppKey = 'a73e08f3';
     let currentPage = 0;
     let allNews = [];
 
@@ -144,37 +131,6 @@
       if (!value) return 'Päiväys puuttuu';
       const date = new Date(value);
       return Number.isNaN(date.valueOf()) ? 'Päiväys puuttuu' : new Intl.DateTimeFormat('fi-FI', { dateStyle: 'medium' }).format(date);
-    }
-
-    function getNewsUrl(item) {
-      const candidate = item.url || item.webUrl || item.contentUrl || item.link || item.links?.web || item.links?.canonical || item.content?.url;
-      if (typeof candidate === 'string' && candidate.startsWith('http')) return candidate;
-      if (typeof item.uri === 'string' && item.uri.startsWith('yle://article/')) return 'https://yle.fi/a/' + item.uri.slice('yle://article/'.length);
-      return 'https://yle.fi/haku?q=' + encodeURIComponent(item.title || '');
-    }
-
-    function normalizeTeletext(data) {
-      const page = data.teletext?.page;
-      const lines = page?.subpage?.flatMap(subpage => subpage.content
-        ?.filter(block => block.type === 'text')
-        .flatMap(block => block.line || []) || []) || [];
-       return lines.map(line => {
-         const text = line.Text?.replace(/\{[^}]+\}/g, '').replace(/\s+/g, ' ').trim();
-         if (!text || text.length < 8 || !isSchoolRelated(text)) return null;
-         const match = text.match(/^(\d{3})\s+(.+?)$/);
-         const pageNumber = match?.[1] || page.number;
-        return {
-           title: match?.[2] || text,
-           description: `Ylen Teksti-TV:n AMK-aiheinen uutisrivi sivulta ${page.number}`,
-          date: page.time,
-           url: `https://yle.fi/tekstitv/txt/P${pageNumber}`
-        };
-       }).filter(Boolean);
-     }
-
-     function isSchoolRelated(text) {
-       const normalizedText = text.toLocaleLowerCase('fi-FI');
-       return schoolNames.some(name => normalizedText.includes(name.toLocaleLowerCase('fi-FI')));
     }
 
     function renderPage() {
@@ -195,26 +151,6 @@
     function escapeHtml(value) { return String(value).replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character])); }
     function escapeAttribute(value) { return escapeHtml(value); }
 
-    function wait(milliseconds) {
-      return new Promise(resolve => setTimeout(resolve, milliseconds));
-    }
-
-    async function fetchWithRetry(url, options = {}, attempts = 1) {
-      let lastError;
-      for (let attempt = 1; attempt <= attempts; attempt += 1) {
-        elements.status.textContent = `Yhdistetään Ylen rajapintaan (${attempt}/${attempts})...`;
-        try {
-          const response = await fetch(url, options);
-          if (response.ok || (response.status >= 400 && response.status < 500)) return response;
-          lastError = new Error(`Ylen rajapinta vastasi koodilla ${response.status}.`);
-        } catch (error) {
-          lastError = error;
-        }
-        if (attempt < attempts) await wait(1500);
-      }
-      throw lastError || new Error('Ylen rajapintaan ei saatu yhteyttä.');
-    }
-
     async function fetchNews() {
       elements.status.textContent = 'Haetaan uusimpia uutisia...';
       elements.list.innerHTML = '<div class="empty">Yhdistetään Ylen rajapintaan...</div>';
@@ -228,16 +164,9 @@
           renderPage();
           return;
         }
-        const params = new URLSearchParams({ app_id: yleAppId, app_key: yleAppKey });
-        allNews = [];
-        for (const pageNumber of teletextPages) {
-          const response = await fetchWithRetry(`https://external.api.yle.fi/v1/teletext/pages/${pageNumber}.json?${params}`);
-          if (!response.ok) throw new Error(`Ylen Teletext-rajapinta vastasi koodilla ${response.status}.`);
-          allNews.push(...normalizeTeletext(await response.json()));
-        }
-         allNews = [...new Map(allNews.map(item => [item.title, item])).values()]
-           .sort((first, second) => new Date(second.date) - new Date(first.date))
-           .slice(0, pageSize);
+        const response = await fetch('./news.json', { cache: 'no-store' });
+        if (!response.ok) throw new Error(`Paikallinen uutisdata vastasi koodilla ${response.status}.`);
+        allNews = (await response.json()).slice(0, pageSize);
         writeCache(allNews);
         currentPage = 0;
         elements.status.textContent = `${allNews.length} uusinta AMK-aiheista Ylen uutisotsikkoa.`;
