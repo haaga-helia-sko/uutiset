@@ -113,7 +113,7 @@
 
   <script>
     const pageSize = 10;
-     const cacheKey = 'sko-amk-news-cache-v3';
+    const cacheKey = 'sko-amk-news-cache-v4';
     const teletextPages = [100, 102, 130, 160, 500];
      const schoolNames = [
        'Arcada', 'Centria', 'Diakonia-ammattikorkeakoulu', 'Diak', 'Haaga-Helia',
@@ -123,7 +123,7 @@
        'Novia', 'Oulun ammattikorkeakoulu', 'Oamk', 'Satakunnan ammattikorkeakoulu',
        'SAMK', 'Savonia-ammattikorkeakoulu', 'Seinäjoen ammattikorkeakoulu', 'SeAMK',
        'Turun ammattikorkeakoulu', 'Vasa yrkeshögskola', 'VAMK', 'Kaakkois-Suomen ammattikorkeakoulu',
-       'Xamk', 'Yrkeshögskolan på Åland', 'ammattikorkeakoulu', 'ammattikorkea', 'AMK'
+      'Xamk', 'Yrkeshögskolan på Åland', 'Sivista', 'OAJ', 'ammattikorkeakoulu', 'ammattikorkea', 'AMK'
      ];
     const cacheLifetime = 5 * 60 * 1000;
     const yleAppId = '471c17b64dab294938195a3620b13fbb';
@@ -155,7 +155,9 @@
 
     function normalizeTeletext(data) {
       const page = data.teletext?.page;
-      const lines = page?.subpage?.[0]?.content?.find(block => block.type === 'text')?.line || [];
+      const lines = page?.subpage?.flatMap(subpage => subpage.content
+        ?.filter(block => block.type === 'text')
+        .flatMap(block => block.line || []) || []) || [];
        return lines.map(line => {
          const text = line.Text?.replace(/\{[^}]+\}/g, '').replace(/\s+/g, ' ').trim();
          if (!text || text.length < 8 || !isSchoolRelated(text)) return null;
