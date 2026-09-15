@@ -10,3 +10,5 @@ Deploy hakee Ylen Ammattikorkeakoulut-aihesivulta 10 uusinta artikkelia palvelin
 ```sh
 ./deploy.sh
 ```
+
+Nykyinen projektiosoite on <https://haaga-helia-sko.github.io/uutiset/>. Juuriosoite <https://haaga-helia-sko.github.io/> tarvitsee GitHubiin erillisen repositorion nimellä `haaga-helia-sko.github.io`. Kun repo on luotu, `deploy.sh` julkaisee sinne automaattisen forwardin `/uutiset/`-osoitteeseen ja pitää molemmat osoitteet toimivina.
