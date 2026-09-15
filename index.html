@@ -113,8 +113,18 @@
 
   <script>
     const pageSize = 10;
-    const cacheKey = 'sko-amk-news-cache-v2';
+     const cacheKey = 'sko-amk-news-cache-v3';
     const teletextPages = [100, 102, 130, 160, 500];
+     const schoolNames = [
+       'Arcada', 'Centria', 'Diakonia-ammattikorkeakoulu', 'Diak', 'Haaga-Helia',
+       'HAMK', 'Humanistinen ammattikorkeakoulu', 'Humak', 'Jyväskylän ammattikorkeakoulu',
+       'JAMK', 'Kajaani ammattikorkeakoulu', 'KAMK', 'Karelia-ammattikorkeakoulu',
+       'LAB-ammattikorkeakoulu', 'Lapin ammattikorkeakoulu', 'Laurea', 'Metropolia',
+       'Novia', 'Oulun ammattikorkeakoulu', 'Oamk', 'Satakunnan ammattikorkeakoulu',
+       'SAMK', 'Savonia-ammattikorkeakoulu', 'Seinäjoen ammattikorkeakoulu', 'SeAMK',
+       'Turun ammattikorkeakoulu', 'Vasa yrkeshögskola', 'VAMK', 'Kaakkois-Suomen ammattikorkeakoulu',
+       'Xamk', 'Yrkeshögskolan på Åland', 'ammattikorkeakoulu', 'ammattikorkea', 'AMK'
+     ];
     const cacheLifetime = 5 * 60 * 1000;
     const yleAppId = '471c17b64dab294938195a3620b13fbb';
     const yleAppKey = 'a73e08f3';
@@ -146,16 +156,23 @@
     function normalizeTeletext(data) {
       const page = data.teletext?.page;
       const lines = page?.subpage?.[0]?.content?.find(block => block.type === 'text')?.line || [];
-      return lines.map(line => {
-        const match = line.Text?.match(/^\s*(\d{3})\s+(.+?)\s*$/);
-        if (!match) return null;
+       return lines.map(line => {
+         const text = line.Text?.replace(/\{[^}]+\}/g, '').replace(/\s+/g, ' ').trim();
+         if (!text || text.length < 8 || !isSchoolRelated(text)) return null;
+         const match = text.match(/^(\d{3})\s+(.+?)$/);
+         const pageNumber = match?.[1] || page.number;
         return {
-          title: match[2],
-          description: 'Ylen Teksti-TV:n uutisotsikko',
+           title: match?.[2] || text,
+           description: `Ylen Teksti-TV:n AMK-aiheinen uutisrivi sivulta ${page.number}`,
           date: page.time,
-          url: `https://yle.fi/tekstitv/txt/P${match[1]}`
+           url: `https://yle.fi/tekstitv/txt/P${pageNumber}`
         };
-      }).filter(item => item && /ammattikorkeakoulu|ammattikorkea|\bamk\b/i.test(item.title));
+       }).filter(Boolean);
+     }
+
+     function isSchoolRelated(text) {
+       const normalizedText = text.toLocaleLowerCase('fi-FI');
+       return schoolNames.some(name => normalizedText.includes(name.toLocaleLowerCase('fi-FI')));
     }
 
     function renderPage() {
@@ -166,7 +183,7 @@
           <div class="news-number">${String(currentPage * pageSize + index + 1).padStart(2, '0')}</div>
           <div><div class="news-date">${formatDate(item.date)}</div><h3 class="news-title">${escapeHtml(item.title)}</h3><p class="news-description">${escapeHtml(item.description)}</p></div>
           <a class="button" href="${escapeAttribute(item.url)}" target="_blank" rel="noopener">Lue Ylessä <span class="arrow">&nbsp;↗</span></a>
-        </article>`).join('') : '<div class="empty">Tälle haulle ei löytynyt uutisia.</div>';
+        </article>`).join('') : '<div class="empty">Ylen nykyisistä uutisotsikoista ei löytynyt ammattikorkeakouluja tai niiden nimiä koskevia osumia.</div>';
       elements.pagination.classList.toggle('hidden', pageCount <= 1);
       elements.pageCount.textContent = `${currentPage + 1} / ${pageCount}`;
       elements.previous.disabled = currentPage === 0;
@@ -216,7 +233,9 @@
           if (!response.ok) throw new Error(`Ylen Teletext-rajapinta vastasi koodilla ${response.status}.`);
           allNews.push(...normalizeTeletext(await response.json()));
         }
-        allNews = [...new Map(allNews.map(item => [item.title, item])).values()].slice(0, pageSize);
+         allNews = [...new Map(allNews.map(item => [item.title, item])).values()]
+           .sort((first, second) => new Date(second.date) - new Date(first.date))
+           .slice(0, pageSize);
         writeCache(allNews);
         currentPage = 0;
         elements.status.textContent = `${allNews.length} uusinta AMK-aiheista Ylen uutisotsikkoa.`;
