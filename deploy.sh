@@ -111,7 +111,7 @@ fi
 # Jos organisaation Pages-juurirepo on olemassa, julkaise sinne redirect.
 # GitHub Pages ei voi ohjata organisaation juurta projektireposta käsin.
 ROOT_REMOTE=""
-for a in "$HOST_ALIAS" "${HOST_ALIAS}-443"; do
+for a in "${HOST_ALIAS}-root" "${HOST_ALIAS}-root-443"; do
     if git ls-remote "git@${a}:${GH_ORG}/${ROOT_REPO}.git" >/dev/null 2>&1; then
         ROOT_REMOTE="git@${a}:${GH_ORG}/${ROOT_REPO}.git"
         break
