@@ -5,7 +5,7 @@ Ensimmäisenä sisältönä on linkki AMK:n voimassa olevaan työehtosopimukseen
 
 ## Käyttöönotto
 
-Sivu hakee uutiset automaattisesti `fetch`-kutsulla Ylen REST-rajapinnasta, näyttää kymmenen uutista sivua kohden ja avaa jokaisen jutun Ylen sivulle. Julkaise muutokset komennolla:
+Sivu hakee enintään viisi uutista automaattisesti `fetch`-kutsulla Ylen REST-rajapinnasta ja avaa jokaisen jutun Ylen sivulle. Onnistunut haku säilytetään selaimen istunnon välimuistissa viiden minuutin ajan API-kuorman rajoittamiseksi. Julkaise muutokset komennolla:
 
 ```sh
 ./deploy.sh

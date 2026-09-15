@@ -97,7 +97,7 @@
 
   <main class="shell">
     <div class="section-head">
-      <div><h2>Uusimmat Yle-uutiset</h2><p class="status" id="status">Haetaan uutisia...</p></div>
+      <div><h2>Uusimmat Yle-uutiset</h2><p class="status" id="status">Haetaan viittä uutista...</p></div>
     </div>
     <section id="news-list" class="news-list" aria-live="polite">
       <div class="empty">Ylen rajapinta-avaimet saat osoitteesta <a href="https://tunnus.yle.fi/api-avaimet" target="_blank" rel="noopener">tunnus.yle.fi/api-avaimet</a>.</div>
@@ -112,7 +112,9 @@
   <footer class="shell">Uutiset haetaan automaattisesti Ylen uutislähteistä. Päivitetty viimeksi sivun latauksen yhteydessä.</footer>
 
   <script>
-    const pageSize = 10;
+    const pageSize = 5;
+    const cacheKey = 'sko-amk-news-cache';
+    const cacheLifetime = 5 * 60 * 1000;
     const yleAppId = '471c17b64dab294938195a3620b13fbb';
     const yleAppKey = 'a73e08f3';
     let currentPage = 0;
@@ -181,7 +183,7 @@
       return new Promise(resolve => setTimeout(resolve, milliseconds));
     }
 
-    async function fetchWithRetry(url, options = {}, attempts = 5) {
+    async function fetchWithRetry(url, options = {}, attempts = 1) {
       let lastError;
       for (let attempt = 1; attempt <= attempts; attempt += 1) {
         elements.status.textContent = `Yhdistetään Ylen rajapintaan (${attempt}/${attempts})...`;
@@ -202,23 +204,40 @@
       elements.list.innerHTML = '<div class="empty">Yhdistetään Ylen rajapintaan...</div>';
       elements.pagination.classList.add('hidden');
       try {
-        const params = new URLSearchParams({ app_id: yleAppId, app_key: yleAppKey, q: 'ammattikorkeakoulu', limit: '100', sort: 'publicationdate', type: 'article', language: 'fi' });
-        const response = await fetchWithRetry(`https://external.api.yle.fi/v1/search.json?${params}`);
-        if (response.ok) {
-          allNews = normalizeNews(await response.json());
-        } else {
-          const fallback = await fetchWithRetry('https://news.google.com/rss/search?q=site%3Ayle.fi%20ammattikorkeakoulu&hl=fi&gl=FI&ceid=FI:fi');
-          if (!fallback.ok) throw new Error(`Ylen API vastasi koodilla ${response.status}.`);
-          allNews = normalizeRss(new DOMParser().parseFromString(await fallback.text(), 'application/xml'));
+        const cached = readCache();
+        if (cached) {
+          allNews = cached;
+          currentPage = 0;
+          elements.status.textContent = `${allNews.length} tuoretta AMK-uutista. Välimuisti päivitetään viiden minuutin välein.`;
+          renderPage();
+          return;
         }
+        const params = new URLSearchParams({ app_id: yleAppId, app_key: yleAppKey, q: 'ammattikorkeakoulu', limit: String(pageSize), sort: 'publicationdate', type: 'article', language: 'fi' });
+        const response = await fetchWithRetry(`https://external.api.yle.fi/v1/search.json?${params}`);
+        if (!response.ok) throw new Error(`Ylen rajapinta vastasi koodilla ${response.status}.`);
+        allNews = normalizeNews(await response.json()).slice(0, pageSize);
+        writeCache(allNews);
         currentPage = 0;
-        elements.status.textContent = `${allNews.length} tuoretta AMK-uutista. Näytetään 10 kerrallaan.`;
+        elements.status.textContent = `${allNews.length} tuoretta AMK-uutista.`;
         renderPage();
       } catch (error) {
         allNews = [];
         elements.status.textContent = 'Uutisten haku epäonnistui.';
-        elements.list.innerHTML = `<div class="error">${escapeHtml(error.message)} Yhteyttä yritettiin automaattisesti viisi kertaa.</div>`;
+        elements.list.innerHTML = `<div class="error">${escapeHtml(error.message)} Uutta yritystä ei tehdä heti uudelleen API-rajoitusten vuoksi.</div>`;
       }
+    }
+
+    function readCache() {
+      try {
+        const cached = JSON.parse(sessionStorage.getItem(cacheKey));
+        return cached && Date.now() - cached.time < cacheLifetime ? cached.news : null;
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function writeCache(news) {
+      sessionStorage.setItem(cacheKey, JSON.stringify({ time: Date.now(), news }));
     }
 
     elements.previous.addEventListener('click', () => { currentPage -= 1; renderPage(); window.scrollTo({ top: document.querySelector('main').offsetTop - 20, behavior: 'smooth' }); });
