@@ -5,9 +5,11 @@ import re
 import sys
 from html.parser import HTMLParser
 from urllib.parse import urljoin
+from urllib.request import Request, urlopen
 
 SOURCE_URL = "https://yle.fi/t/18-209712/fi"
 MAX_NEWS = 10
+USER_AGENT = "HHO-uutiset/1.0"
 
 def is_article_url(value):
     return value.startswith("/a/") or value.startswith("https://yle.fi/a/")
@@ -56,5 +58,15 @@ seen = set()
 for article in parser.articles:
     if article["url"] not in seen:
         seen.add(article["url"])
+        try:
+            request = Request(article["url"], headers={"User-Agent": USER_AGENT})
+            article_html = urlopen(request, timeout=15).read().decode("utf-8", "ignore")
+            published = re.search(r'"datePublished"\s*:\s*"([^"]+)"', article_html)
+            if not published:
+                published = re.search(r'property=["\']article:published_time["\'][^>]+content=["\']([^"\']+)', article_html)
+            if published:
+                article["date"] = published.group(1)
+        except Exception:
+            pass
         unique.append(article)
 print(json.dumps(unique[:MAX_NEWS], ensure_ascii=False, indent=2))

@@ -3,197 +3,45 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="SKO ry:n ajankohtaiset asiat, AMK:n työehtosopimus ja uusimmat Yle-uutiset.">
-  <title>SKO ry</title>
+  <meta name="description" content="Haaga-Helian opettajat HHO ry:n verkkosivut, uutiset ja jäsenyystiedot.">
+  <title>Haaga-Helian opettajat HHO ry</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap');
-
-    :root {
-      --ink: #17212b;
-      --muted: #63717b;
-      --paper: #f5f1e8;
-      --surface: #fffdf8;
-      --line: #d9d4c8;
-      --accent: #e94827;
-      --accent-dark: #bd3219;
-      --teal: #1f716d;
-      --shadow: 0 18px 45px rgba(23, 33, 43, .09);
-    }
-
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      color: var(--ink);
-      background: var(--paper);
-      font-family: 'DM Sans', sans-serif;
-      background-image: radial-gradient(circle at 10% 0%, rgba(233, 72, 39, .12), transparent 28rem), linear-gradient(135deg, transparent 60%, rgba(31, 113, 109, .08));
-    }
-    a { color: inherit; }
-    .shell { width: min(1080px, calc(100% - 36px)); margin: 0 auto; }
-    header { padding: 34px 0 42px; }
-    .topline { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
-    .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; font-family: 'Space Grotesk', sans-serif; font-weight: 700; letter-spacing: -.03em; }
-    .brand-mark { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 50%; background: var(--accent); color: white; font-size: 14px; }
-    .eyebrow { margin: 0 0 14px; color: var(--teal); font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
-    h1, h2, p { margin-top: 0; }
-    h1 { max-width: 700px; margin: 62px 0 16px; font-family: 'Space Grotesk', sans-serif; font-size: clamp(42px, 7vw, 78px); line-height: .98; letter-spacing: -.06em; }
-    .intro { max-width: 590px; margin-bottom: 28px; color: var(--muted); font-size: 18px; line-height: 1.55; }
-    .agreement { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center; max-width: 800px; padding: 22px; background: var(--surface); border: 1px solid var(--line); border-left: 5px solid var(--teal); border-radius: 12px; box-shadow: var(--shadow); }
-    .agreement-label { margin-bottom: 8px; color: var(--teal); font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
-    .agreement h2 { margin: 0 0 8px; font-size: 24px; }
-    .agreement p { margin: 0; color: var(--muted); line-height: 1.45; }
-    .qr { width: 104px; height: 104px; padding: 6px; background: white; border: 1px solid var(--line); border-radius: 8px; }
-    button, .button { display: inline-flex; justify-content: center; align-items: center; min-height: 45px; padding: 0 18px; border: 0; border-radius: 8px; color: white; background: var(--accent); font: 700 14px 'DM Sans', sans-serif; cursor: pointer; text-decoration: none; }
-    button:hover, .button:hover { background: var(--accent-dark); }
-    main { padding-bottom: 64px; }
-    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 20px; }
-    h2 { margin-bottom: 5px; font-family: 'Space Grotesk', sans-serif; font-size: 30px; letter-spacing: -.04em; }
-    .status { margin: 0; color: var(--muted); font-size: 14px; }
-    .news-list { display: grid; gap: 12px; }
-    .news-card { display: grid; grid-template-columns: 80px 1fr auto; gap: 20px; align-items: center; padding: 20px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 5px 18px rgba(23, 33, 43, .04); animation: rise .4s ease both; }
-    .news-number { color: var(--accent); font: 700 28px 'Space Grotesk', sans-serif; }
-    .news-date { margin-bottom: 7px; color: var(--teal); font-size: 12px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
-    .news-title { margin-bottom: 7px; font-family: 'Space Grotesk', sans-serif; font-size: 20px; line-height: 1.16; letter-spacing: -.025em; }
-    .news-description { margin: 0; color: var(--muted); line-height: 1.45; }
-    .arrow { font-size: 24px; }
-    .empty, .error { padding: 30px; border: 1px dashed var(--line); border-radius: 12px; color: var(--muted); background: rgba(255, 253, 248, .55); line-height: 1.5; }
-    .error { border-color: #e4a18f; color: #8f321f; }
-    .pagination { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 24px; }
-    .pagination button { min-width: 104px; }
-    .pagination button:disabled { opacity: .4; cursor: not-allowed; }
-    .page-count { color: var(--muted); font-size: 14px; font-weight: 700; }
-    footer { padding: 24px 0 40px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); }
-    footer a { color: var(--teal); }
-    .hidden { display: none; }
-    @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    @media (max-width: 700px) {
-      .shell { width: min(100% - 24px, 560px); }
-      header { padding-top: 22px; }
-      h1 { margin-top: 45px; }
-      .agreement { grid-template-columns: 1fr; }
-      .qr { width: 88px; height: 88px; }
-      .news-card { grid-template-columns: 42px 1fr; gap: 12px; }
-      .news-card .button { grid-column: 2; width: fit-content; }
-      .section-head { align-items: start; flex-direction: column; }
-    }
+    @import url('https://fonts.googleapis.com/css?family=Lato:300,700');
+    :root { --ink:#646464; --heading:#545454; --link:#5668ab; --hover:#e0555a; --red:#e0555a; --line:rgba(144,144,144,.25); --soft:#f2f2f2; }
+    * { box-sizing:border-box; } html { scroll-behavior:smooth; }
+    body { margin:0; color:var(--ink); background:#fff; font:300 18px/1.75em Lato,Helvetica,sans-serif; }
+    a { color:var(--link); font-weight:700; text-decoration:none; border-bottom:1px dotted; transition:color .2s,border-color .2s; } a:hover { color:var(--hover); border-bottom-color:transparent; }
+    h1,h2,h3 { color:var(--heading); font-weight:700; line-height:1.15; margin:0 0 1em; letter-spacing:-.01em; } h2{font-size:1.75em} h3{font-size:1.25em} p{margin:0 0 2em} ul{margin:0 0 2em;padding-left:1.25em} li{padding-left:.25em}
+    .container { width:min(1200px,calc(100% - 4em)); margin:0 auto; }
+    #header { position:fixed; inset:0 0 auto; z-index:10; height:3em; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.05); } #header .container{display:flex;align-items:center;justify-content:space-between;height:100%} #header h1{margin:0;font-size:1em} #header h1 a{border:0;color:inherit} #header nav a{border:0;color:inherit;font-size:.8em;margin-left:1.5em;text-transform:uppercase;letter-spacing:.08em}
+    #banner { margin-top:3em; padding:6em 1em; background:var(--red); color:#fff; text-align:center; } #banner h2,#banner h3{color:#fff} #banner h2{font-size:clamp(2.25em,6vw,3.25em);margin-bottom:.5em} #banner h3{font-weight:300}
+    .button { display:inline-block; padding:.65em 1.5em; border:1px solid #fff; border-radius:.5em; color:#fff; font-size:.8em; font-weight:700; letter-spacing:.1em; text-transform:uppercase; } .button:hover{background:rgba(255,255,255,.12);color:#fff}
+    .wrapper{padding:5em 0 3em}.style1{background:var(--soft)}.style2{background:#fff}.major{text-align:center}.major p{font-size:1.1em}
+    .tes{display:grid;grid-template-columns:1fr auto;gap:2em;align-items:center;padding:1.5em;margin-bottom:2.5em;background:#fff;border:1px solid var(--line);border-radius:.5em}.tes h3{margin-bottom:.4em}.tes p{margin:0}.qr{width:120px;height:120px;padding:.4em;border:1px solid var(--line)}
+    .news-list{display:grid;gap:1em}.news-card{display:grid;grid-template-columns:5em 1fr auto;gap:1em;align-items:center;padding:1.25em;background:#fff;border:1px solid var(--line);border-radius:.5em}.news-number{color:var(--red);font-size:1.8em;font-weight:700;text-align:center}.news-date{color:var(--red);font-size:.75em;font-weight:700;letter-spacing:.08em;text-transform:uppercase}.news-title{margin:.2em 0 .3em;font-size:1.1em}.news-description{margin:0;font-size:.9em}.news-card .button{border-color:var(--line);color:var(--heading);white-space:nowrap}.news-card .button:hover{background:var(--soft);color:var(--hover)}
+    .empty,.error{padding:1em;border:1px dashed var(--line)}.error{color:#a43d45}.pagination{display:flex;justify-content:center;align-items:center;gap:1em;margin-top:2em}.pagination button{font:inherit;cursor:pointer}.pagination button:disabled{opacity:.4;cursor:default}.hidden{display:none}footer{padding:4em 0;color:#949494;text-align:center}footer a{margin:0 .35em;border:0}
+    @media(max-width:700px){body{font-size:16px}.container{width:calc(100% - 2em)}#header nav a{margin-left:.6em;font-size:.7em}.tes,.news-card{grid-template-columns:1fr}.qr{width:96px;height:96px}.news-number{text-align:left}.news-card .button{justify-self:start}}
   </style>
 </head>
-<body>
-  <header class="shell">
-    <div class="topline">
-      <a class="brand" href="/"><span class="brand-mark">S</span><span>SKO ry</span></a>
-      <span class="eyebrow">Ammattikorkeakoulut</span>
-    </div>
-    <h1>SKO ry</h1>
-    <div class="agreement">
-      <div>
-        <div class="agreement-label">AMK:n voimassa oleva työehtosopimus</div>
-        <h2><a href="https://sivista.fi/tyomarkkinat/tyoehtosopimukset-ja-palkkataulukot/ammattikorkeakoulut/" target="_blank" rel="noopener">Ammattikorkeakoulujen TES</a></h2>
-        <p>Sivistan ajantasainen työehtosopimussivu ja sopimusasiakirjat.</p>
-      </div>
-      <a href="https://sivista.fi/tyomarkkinat/tyoehtosopimukset-ja-palkkataulukot/ammattikorkeakoulut/" target="_blank" rel="noopener"><img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=https%3A%2F%2Fsivista.fi%2Ftyomarkkinat%2Ftyoehtosopimukset-ja-palkkataulukot%2Fammattikorkeakoulut%2F" alt="QR-koodi AMK:n työehtosopimussivulle"></a>
-    </div>
-  </header>
-
-  <main class="shell">
-    <div class="section-head">
-      <div><h2>Uusimmat Yle-uutiset</h2><p class="status" id="status">Haetaan viittä uutista...</p></div>
-    </div>
-    <section id="news-list" class="news-list" aria-live="polite">
-      <div class="empty">Ylen rajapinta-avaimet saat osoitteesta <a href="https://tunnus.yle.fi/api-avaimet" target="_blank" rel="noopener">tunnus.yle.fi/api-avaimet</a>.</div>
-    </section>
-    <nav class="pagination hidden" id="pagination" aria-label="Uutisten sivutus">
-      <button id="previous" type="button">Edelliset</button>
-      <span class="page-count" id="page-count"></span>
-      <button id="next" type="button">Seuraavat</button>
-    </nav>
-  </main>
-
-  <footer class="shell">Uutiset haetaan automaattisesti Ylen uutislähteistä. Päivitetty viimeksi sivun latauksen yhteydessä.</footer>
-
+<body id="top">
+  <header id="header"><div class="container"><h1><a href="#top">HHO ry</a></h1><nav><a href="#one">Yleistä</a><a href="#two">Jäsenyys</a><a href="#three">Tietoa jäsenille</a><a href="#four">Linkkejä</a><a href="#five">Yhteystiedot</a></nav></div></header>
+  <section id="banner"><div class="inner"><h2>Haaga-Helian opettajat HHO ry</h2><h3>Yhdistyksen verkkosivut</h3><a class="button" href="#two">Liity jäseneksi</a></div></section>
+  <section id="one" class="wrapper style1"><div class="container"><header class="major"><h2>Yleistä</h2><p>Haaga-Helian opettajat HHO ry on <a href="http://www.haaga-helia.fi/">Haaga-Helia ammattikorkeakoulu</a>n opettajayhdistys. HHO ry:n toiminnassa yhdistyvät edunvalvonta ja yhdessä toimiminen eri muodoin.</p></header>
+    <div class="tes"><div><h3><a href="https://sivista.fi/tyomarkkinat/tyoehtosopimukset-ja-palkkataulukot/ammattikorkeakoulut/">Ammattikorkeakoulujen työehtosopimus</a></h3><p>AMK:n voimassa oleva työehtosopimus ja sopimusasiakirjat.</p></div><a href="https://sivista.fi/tyomarkkinat/tyoehtosopimukset-ja-palkkataulukot/ammattikorkeakoulut/"><img class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=https%3A%2F%2Fsivista.fi%2Ftyomarkkinat%2Ftyoehtosopimukset-ja-palkkataulukot%2Fammattikorkeakoulut%2F" alt="QR-koodi AMK:n työehtosopimussivulle"></a></div>
+    <h2>Uusimmat Yle-uutiset</h2><p id="status">Haetaan uutisia...</p><section id="news-list" class="news-list" aria-live="polite"><div class="empty">Yhdistetään uutispalveluun...</div></section><nav id="pagination" class="pagination hidden" aria-label="Uutisten sivutus"><button class="button" id="previous" type="button">Edelliset</button><span id="page-count"></span><button class="button" id="next" type="button">Seuraavat</button></nav>
+  </div></section>
+  <section id="two" class="wrapper style2"><div class="container"><h1>Jäsenyys</h1><p>HHO ry:n jäsenenä tutustut kollegoihisi yhteisissä tapaamisissa ja virkistystoiminnassa ja &ndash; mikä tärkeintä &ndash; kuulut näin myös paikallisen edunvalvonnan piiriin.</p><p>HHO ry kuuluu jäsenjärjestönä <a href="https://sko.oaj.fi">SKO ry</a>:hyn (Suomen korkeakoulujen ja toisen asteen opettajat ry) ja sitä kautta vieläkin isompaan yhteisöön osana <a href="http://www.oaj.fi">OAJ</a>:n jäsenjärjestöjä. <a href="http://www.oaj.fi/cs/oaj/Jasenyys%20ja%20jasenpalvelut">OAJ:n jäsenyyssivuilla</a> onkin paljon lisätietoa asiasta. Monet etujärjestöt tukevat myös <a href="http://www.oaj.fi/cs/oaj/rinnakkaisjasenyys">rinnakkaisjäsenyyttä</a> toisen <a href="http://akava.fi">Akava</a>n jäsenjärjestön kanssa. Ammattiliiton kautta on lisäksi tarjolla mitä moninaisimpia <a href="https://www.memberplus.fi/">jäsenetuja</a>. Tietoa jäsenmaksusta löytyy SKO:n <a href="https://sko.oaj.fi/jaseneksi-liittyminen/">Jäseneksi liittyminen</a> -sivulta.</p><p><a href="http://www.haaga-helia.fi/~hhory/miksi-liittya/">Jäsenyyden hyödyt</a> ovat moninaiset.</p><p><strong>Voit liittyä</strong> Haaga-Helian opettajiin täyttämällä ensin <a href="https://omattiedot.oaj.fi/liity/">OAJ:n liittymislomakkeeseen</a> omat perustietosi. Saat antamaasi sähköpostiosoitteeseen paluupostissa linkin, jossa pääset täyttämään yhdistyksesi tiedot. Valitse lomakkeessa:</p><ul><li><i>työnantajaksi</i> Haaga-Helia ammattikorkeakoulu Oy;</li><li><i>opettajayhdistykseksi</i> Haaga-Helian opettajat HHO ry;</li><li><i>alueyhdistykseksi</i> OAJ:n Pääkaupunkiseudun alueyhdistys ry;</li><li><i>valtakunnalliseksi yhdistykseksi</i> <a href="http://sko.oaj.fi/">SKO ry</a>.</li></ul><p>Lisätietoja ja ohjeita jäseneksi liittymisestä löytyy <a href="https://www.oaj.fi/jasenyys/liity-jaseneksi/">OAJ:n Liity jäseneksi!</a> -sivulta sekä <a href="https://www.oaj.fi/globalassets/jasenyys/liittymisprosessin-ohjevideo/liittymisen-ohjevideo-17.9.2021.mp4">OAJ:n jäseneksi liittymisen ohjevideosta</a>.</p><p><strong>Jos tietosi muuttuvat</strong>, päivitä muuttuneet tiedot <a href="https://www.oaj.fi/jasenyys/jasentietojen-yllapito/">OAJ:n jäsentietosivujen</a> kautta: <a href="https://www.oaj.fi/jasenyys/jasentietojen-yllapito/">Jäsentietosivut</a> &rarr; Kirjaudu Omat tiedot -osioon &rarr; Muokkaa, niin ne päivittyvät myös HHO ry:lle.</p><p><strong>Eroaminen yhdistyksestä</strong> <em>(myös eläköitymisen yhteydessä)</em> tapahtuu sekin <a href="https://www.oaj.fi/jasenyys/jasentietojen-yllapito/">OAJ:n jäsentietosivujen</a> kautta.</p><p>Mietitkö eläkkeelle jäämistä tai oletko päätöksen jo tehnyt? <a href="http://myy.haaga-helia.fi/~hhory/elakoityessa/">Mitä tulee ottaa huomioon, kun harkitsee eläkkeelle siirtymistä.</a></p></div></section>
+  <section id="three" class="wrapper style1"><div class="container"><h3><u>Haaga-Helia amk &ndash;tietoutta jäsenille</u></h3><p>Seuraavassa on listattu linkkejä jäsenille usein hyödyllisiin tietolähteisiin. Haaga-Helia amk:n verkkotunnus vaaditaan useimpiin.</p><ul><li><a href="http://www.haaga-helia.fi/fi/haaga-heliasta/viestinta/esitteet-ja-vuosikertomukset">Haaga-Helia amk:n esitteet ja vuosikertomukset</a></li><li><a href="https://haagahelia.sharepoint.com/sites/Opetuksen-tyokalupakki/">Opetuksen työkalupakki</a><ul><li><a href="https://haagahelia.sharepoint.com/sites/Opetuksen-tyokalupakki/SitePages/Periodisuunnittelu.aspx">Opettajan työn mitoitus ja lukuvuoden ajoitus</a></li></ul></li><li><u>Vanha intra:</u> <a href="https://intra.haaga-helia.fi/hr/tyosuhdeasiat/Sivut/default.aspx">Työsuhdeasiat</a><ul><li><a href="https://intra.haaga-helia.fi/hr/tyosuhdeasiat/lomat-ja-muut-poissaolot/Sivut/default.aspx">Lomat ja muut poissaolot</a></li><li><a href="https://intra.haaga-helia.fi/hr/tyosuhdeasiat/tyoaika/Sivut/default.aspx">Työaika</a></li><li><a href="https://intra.haaga-helia.fi/hr/tyosuhdeasiat/vanhuus-ja-osa-aikaelake/Sivut/default.aspx">Vanhuus- ja osittainen vanhuuseläke</a></li></ul></li><li><a href="https://intra.haaga-helia.fi/hr/ty%C3%B6hyvinvointi/Sivut/Ty%C3%B6suojelu.aspx">Työsuojelu</a></li></ul></div></section>
+  <section id="four" class="wrapper style2"><div class="container"><h3><u>Linkkejä muualle ja muita kiinnostavia tapahtumia</u></h3><dl><dt><a href="http://sko.oaj.fi/">SKO ry, Suomen korkeakoulujen ja toisen asteen opettajat ry</a></dt><dd><a href="https://sko.oaj.fi/jasenyys/rinnakkaisjasenyys/">Rinnakkaisjäsenyyskampanja</a>: SKO/OAJ ja Suomen Ekonomit suosittelevat rinnakkaisjäsenyyttä. SKO ja OAJ tulevat vastaan ensimmäisen vuoden uusissa jäsenmaksuissa. Tarkista tilanne liittyessäsi, sen uudistamisesta päätetään vuosittain.</dd><dt><a href="https://www.oaj.fi">Opetusalan ammattijärjestö OAJ ry</a></dt><dd><a href="https://www.oaj.fi/jasenyys">Jäsenyyssivut</a></dd><dd><a href="https://www.oaj.fi/arjessa/tyohyvinvointi/">Työhyvinvoinnin lukuvuosi 2019&ndash;2020</a></dd><dd><a href="https://www.oaj.fi/tyoelamaopas">Työelämäopas</a></dd><dt><a href="https://www.akava.fi/">Akava</a></dt><dt><a href="http://myy.haaga-helia.fi/~hhory/OAJ/Tyoehtosopimus_2022-2024_Liite2.pdf">Työehtosopimus 2022&ndash;2024, Liite 2</a></dt><dt><a href="https://www.sivista.fi/">Sivistystyönantaja Sivista</a></dt><dd><a href="https://www.sivista.fi/tyosuhdeasiat/tyoehtosopimukset-ja-palkkataulukot/yksityinen-opetusala/yksityisen-opetusalan-tyoehtosopimus/">Yksityisen opetusalan työehtosopimus</a></dd><dd><a href="https://www.sivista.fi/tyosuhdeasiat/tyoehtosopimukset-ja-palkkataulukot/yksityinen-opetusala/palkkataulukot/">Yksityisen opetusalan palkkataulukot</a></dd><dt><a href="http://arjentietosuoja.fi">Arjen tietosuojaa</a>: Opiskele keväällä 2018 voimaan tulevan tietosuojalain asioita ja hanki itsellesi todistus tietosuojaosaamisesta.</dt><dt><a href="https://operight.fi/">OpeRight</a> &ndash; tekijänoikeus opetustyössä</dt><dt><a href="https://www.lsr.fi/">Liikesivistysrahasto</a></dt><dd><a href="https://sko.oaj.fi/uutiset/skon-juhlarahaston-apurahat/">SKO:n Juhlarahaston apurahat</a></dd><dt>Jäsenedut ovat muuttuneet Akavan <a href="https://www.memberplus.fi/">Member+</a>-verkkopalveluun &ndash; <em>Rekisteröidy ensin</em> palvelun käyttäjäksi.</dt><dt><a href="kuvat/SKOpaivat2016/">Kuvia Helsingin SKO-päiviltä 2016</a></dt><dt>Lentopallojoukkueen <a href="http://myy.haaga-helia.fi/~hhory/kuvat/Teemat/SKO-lentopallo_2016_1105_Oulu">terveiset</a> Oulusta.</dt></dl></div></section>
+  <section id="five" class="wrapper style1"><div class="container"><h3><u>Yhteystiedot</u></h3><p>Yhdistyksen <a href="https://hhory.github.io/yhteystiedot/">tämänhetkisen toiminnan vastuuhenkilöt</a> on koottu omalle sivulleen.</p><dl><dt><strong>Osoite</strong>:</dt><dd>Haaga-Helian opettajat HHO ry</dd><dd><a href="http://www.haaga-helia.fi/">Haaga-Helia ammattikorkeakoulu</a></dd><dd><a href="http://www.haaga-helia.fi/fi/tietoa-haaga-heliasta/yhteystiedot/pasila">Pasilan toimipiste</a> / <a href="http://maps.google.com/maps?q=ratapihantie+13,+helsinki,+finland">Ratapihantie 13</a></dd><dd>FI-00520 <a href="http://www.hel.fi/">Helsinki</a></dd></dl><p><strong><a href="https://e-lomake.haaga-helia.fi/lomakkeet/15838/lomake.html">Yhteydenottolomake</a></strong><br>Ei yleistä vastaanottoaikaa.</p><p>Opettajayhdistyksen muita viestintäkanavia ovat</p><ul><li><a href="https://teams.microsoft.com/l/team/19%3aTHG0PzNdIxq3iSSjmC4Das7oNXxnriuZmGRX086GCw81%40thread.tacv2/conversations?groupId=4076cc79-5161-4c85-af2e-66c62b11483d&tenantId=a9e39483-dd21-4c25-b848-2a625cff7939">HHO ry @Teams</a></li><li><a href="http://www.instagram.com/hhopettajat">HHO ry @Instagram</a></li><li><a href="https://web.yammer.com/main/org/haaga-helia.fi/groups/eyJfdHlwZSI6Ikdyb3VwIiwiaWQiOiI4MTQ0ODIyIn0/all">HHO ry @ Haaga-Helia Yammer</a></li><li><a href="http://t.me/hhopettajat">HHO ry @Telegram</a></li></ul></div></section>
+  <footer id="footer"><div class="container"><p><a href="http://www.instagram.com/hhopettajat">Instagram</a> <a href="http://t.me/hhopettajat">Telegram</a></p><p><a href="#top">PALAA ALKUUN</a></p><p>FAQ &nbsp; Tietosuoja &nbsp; <a href="#five">Yhteystiedot</a></p><p>Copyright &copy; 2024. All rights reserved.</p></div></footer>
   <script>
-    const pageSize = 10;
-    const cacheKey = 'sko-amk-news-cache-v5';
-    const cacheLifetime = 5 * 60 * 1000;
-    let currentPage = 0;
-    let allNews = [];
-
-    const elements = {
-      list: document.querySelector('#news-list'),
-      status: document.querySelector('#status'),
-      pagination: document.querySelector('#pagination'),
-      previous: document.querySelector('#previous'),
-      next: document.querySelector('#next'),
-      pageCount: document.querySelector('#page-count')
-    };
-
-    function formatDate(value) {
-      if (!value) return 'Päiväys puuttuu';
-      const date = new Date(value);
-      return Number.isNaN(date.valueOf()) ? 'Päiväys puuttuu' : new Intl.DateTimeFormat('fi-FI', { dateStyle: 'medium' }).format(date);
-    }
-
-    function renderPage() {
-      const pageCount = Math.max(1, Math.ceil(allNews.length / pageSize));
-      const pageItems = allNews.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
-      elements.list.innerHTML = pageItems.length ? pageItems.map((item, index) => `
-        <article class="news-card" style="animation-delay: ${index * 35}ms">
-          <div class="news-number">${String(currentPage * pageSize + index + 1).padStart(2, '0')}</div>
-          <div><div class="news-date">${formatDate(item.date)}</div><h3 class="news-title">${escapeHtml(item.title)}</h3><p class="news-description">${escapeHtml(item.description)}</p></div>
-          <a class="button" href="${escapeAttribute(item.url)}" target="_blank" rel="noopener">Lue Ylessä <span class="arrow">&nbsp;↗</span></a>
-        </article>`).join('') : '<div class="empty">Ylen nykyisistä uutisotsikoista ei löytynyt ammattikorkeakouluja tai niiden nimiä koskevia osumia.</div>';
-      elements.pagination.classList.toggle('hidden', pageCount <= 1);
-      elements.pageCount.textContent = `${currentPage + 1} / ${pageCount}`;
-      elements.previous.disabled = currentPage === 0;
-      elements.next.disabled = currentPage >= pageCount - 1;
-    }
-
-    function escapeHtml(value) { return String(value).replace(/[&<>'"]/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character])); }
-    function escapeAttribute(value) { return escapeHtml(value); }
-
-    async function fetchNews() {
-      elements.status.textContent = 'Haetaan uusimpia uutisia...';
-      elements.list.innerHTML = '<div class="empty">Yhdistetään Ylen rajapintaan...</div>';
-      elements.pagination.classList.add('hidden');
-      try {
-        const cached = readCache();
-        if (cached) {
-          allNews = cached;
-          currentPage = 0;
-          elements.status.textContent = `${allNews.length} tuoretta AMK-uutista. Välimuisti päivitetään viiden minuutin välein.`;
-          renderPage();
-          return;
-        }
-        const response = await fetch('./news.json', { cache: 'no-store' });
-        if (!response.ok) throw new Error(`Paikallinen uutisdata vastasi koodilla ${response.status}.`);
-        allNews = (await response.json()).slice(0, pageSize);
-        writeCache(allNews);
-        currentPage = 0;
-        elements.status.textContent = `${allNews.length} uusinta AMK-aiheista Ylen uutisotsikkoa.`;
-        renderPage();
-      } catch (error) {
-        allNews = [];
-        elements.status.textContent = 'Uutisten haku epäonnistui.';
-        elements.list.innerHTML = `<div class="error">${escapeHtml(error.message)} Uutta yritystä ei tehdä heti uudelleen API-rajoitusten vuoksi.</div>`;
-      }
-    }
-
-    function readCache() {
-      try {
-        const cached = JSON.parse(sessionStorage.getItem(cacheKey));
-        return cached && Date.now() - cached.time < cacheLifetime ? cached.news : null;
-      } catch (error) {
-        return null;
-      }
-    }
-
-    function writeCache(news) {
-      sessionStorage.setItem(cacheKey, JSON.stringify({ time: Date.now(), news }));
-    }
-
-    elements.previous.addEventListener('click', () => { currentPage -= 1; renderPage(); window.scrollTo({ top: document.querySelector('main').offsetTop - 20, behavior: 'smooth' }); });
-    elements.next.addEventListener('click', () => { currentPage += 1; renderPage(); window.scrollTo({ top: document.querySelector('main').offsetTop - 20, behavior: 'smooth' }); });
-    fetchNews();
+    const pageSize=10,cacheKey='hho-news-cache-v1',cacheLifetime=5*60*1000;let currentPage=0,allNews=[];const $=selector=>document.querySelector(selector),list=$('#news-list'),status=$('#status'),pagination=$('#pagination');
+    const escapeHtml=value=>String(value).replace(/[&<>'"]/g,character=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[character]));
+    function formatDate(value){if(!value)return'Päiväys puuttuu';const date=new Date(value);return Number.isNaN(date.valueOf())?'Päiväys puuttuu':new Intl.DateTimeFormat('fi-FI',{dateStyle:'medium'}).format(date)}
+    function renderPage(){const count=Math.max(1,Math.ceil(allNews.length/pageSize)),items=allNews.slice(currentPage*pageSize,(currentPage+1)*pageSize);list.innerHTML=items.length?items.map((item,index)=>`<article class="news-card"><div class="news-number">${String(currentPage*pageSize+index+1).padStart(2,'0')}</div><div><div class="news-date">${formatDate(item.date)}</div><h3 class="news-title">${escapeHtml(item.title)}</h3><p class="news-description">${escapeHtml(item.description)}</p></div><a class="button" href="${escapeHtml(item.url)}" target="_blank" rel="noopener">Lue Ylessä</a></article>`).join(''):'<div class="empty">Uutisia ei löytynyt.</div>';pagination.classList.toggle('hidden',count<=1);$('#page-count').textContent=`${currentPage+1} / ${count}`;$('#previous').disabled=currentPage===0;$('#next').disabled=currentPage>=count-1}
+    async function fetchNews(){try{const cached=JSON.parse(sessionStorage.getItem(cacheKey)||'null');if(cached&&Date.now()-cached.time<cacheLifetime)allNews=cached.news;else{const response=await fetch('./news.json',{cache:'no-store'});if(!response.ok)throw new Error(`Uutisdata vastasi koodilla ${response.status}.`);allNews=(await response.json()).slice(0,pageSize);sessionStorage.setItem(cacheKey,JSON.stringify({time:Date.now(),news:allNews}))}status.textContent=`${allNews.length} uusinta Yle-uutista.`;renderPage()}catch(error){status.textContent='Uutisten haku epäonnistui.';list.innerHTML=`<div class="error">${escapeHtml(error.message)}</div>`}}
+    $('#previous').onclick=()=>{currentPage--;renderPage()};$('#next').onclick=()=>{currentPage++;renderPage()};fetchNews();
   </script>
 </body>
 </html>
